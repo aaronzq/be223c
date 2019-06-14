@@ -1,7 +1,6 @@
-##
-## this script assumes each image has a mask and each mask has an image
-## and they all have the same name
-##
+"""
+Author: James Go
+"""
 
 import numpy as np
 import sys
@@ -11,6 +10,14 @@ from PIL import Image
 from mod.util import extract_from_mask
 
 def main():
+    """
+    this script assumes each image has a mask and each mask has an image and they all have the same name
+
+    CLI Args:
+        1: a directory of images to be segmented
+        2: a directory of lung segmentation masks
+        3: an output directory for the segmented images
+    """
     image_dir = sys.argv[1]
     mask_dir = sys.argv[2]
     out_dir = sys.argv[3]

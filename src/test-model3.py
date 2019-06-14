@@ -21,17 +21,15 @@ def main():
     CLI Args:
         1: the labels file for the test set of subjects
         2: the directory of PNG image slices
-        3: the directory of lesion masks
-        4: the output directory for the results
-        5: the classifier model file
-        6: the lung segmentation model file
+        3: the output directory for the results
+        4: the classifier model file
+        5: the lung segmentation model file
     """
     test_labels = sys.argv[1]
     image_dir = sys.argv[2]
-    lesion_mask_dir = sys.argv[3]
-    out_dir = sys.argv[4]
-    model_file = sys.argv[5]
-    seg_model_file = sys.argv[6]
+    out_dir = sys.argv[3]
+    model_file = sys.argv[4]
+    seg_model_file = sys.argv[5]
 
     graph = tf.get_default_graph()
     segmenter = model.Segmenter(seg_model_file, graph)
@@ -46,12 +44,10 @@ def main():
         for line in reader:
             fn = line[0]
             img = Image.open(opj(image_dir, fn + ".png"))
-            lesion_mask = Image.open(opj(lesion_mask_dir, fn + ".png"))
             img = preprocess.preprocess(np.array(img))
             img = segmenter.segmenter(img)
-            patch_coords = util.find_lesion_coordiates(np.array(lesion_mask))
-            patch = util.extract_patch(np.array(img), patch_coords, preprocess.PATCH_SIZE)
-            prediction = classifier.classify(patch)
+            img = preprocess.preprocess(img)
+            prediction = classifier.classify(img)
             line.append(prediction)
             file_data.append(line)
 

@@ -1,3 +1,7 @@
+/*
+    Author: James Go
+*/
+
 (function() {
 
 var app = new Vue({
@@ -9,6 +13,7 @@ var app = new Vue({
         image_point: null,
         result: null,
         error: null,
+        loading: false,
         transform_size: globals.img_transform_size,
     },
     methods: {
@@ -38,22 +43,33 @@ var app = new Vue({
             };
             form_data.append("file", this.image_file);
             form_data.append("data", JSON.stringify(req_data));
+            this.loading = true;
             axios.post("/api/query-image", form_data, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             }).then(function(response) {
                 that.result = response.data;
+                if(that.result.similar_images === undefined) {
+                    that.result.similar_images = [];
+                }
                 that.result.similar_images.sort(function(a, b) {
                     if(b.similarity > a.similarity) {
                         return -1;
                     } else if(b.similarity < a.similarity) {
                         return 1;
                     }
+                    if(b.mutual_info_score > a.mutual_info_score) {
+                        return 1;
+                    } else if(b.mutual_info_score < a.mutual_info_score) {
+                        return -1;
+                    }
                     return 0;
                 });
             }, function(err) {
                 that.error = err.data;
+            }).finally(function() {
+                that.loading = false;
             });
         },
         updateImageFile: function() {
